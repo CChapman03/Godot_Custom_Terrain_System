@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3 uid="uid://dcvigmsamqpym"]
+
+[ext_resource type="Script" path="res://Scripts/Main.gd" id="1_8w7e2"]
+[ext_resource type="PackedScene" uid="uid://ch8jy0v4y6r1n" path="res://Scenes/Player.tscn" id="1_tm64p"]
+[ext_resource type="PackedScene" uid="uid://sbi244et0ldv" path="res://Scenes/terrain.tscn" id="3_tic8y"]
+
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_j3guv"]
+rayleigh_coefficient = 4.37
+mie_coefficient = 0.387
+mie_eccentricity = 0.87
+mie_color = Color(0.414883, 0.26736, 0.0785534, 1)
+turbidity = 19.54
+sun_disk_scale = 82.76
+energy_multiplier = 3.0
+
+[sub_resource type="Sky" id="Sky_laqtd"]
+sky_material = SubResource("PhysicalSkyMaterial_j3guv")
+
+[sub_resource type="Environment" id="Environment_smc6q"]
+background_mode = 2
+sky = SubResource("Sky_laqtd")
+ambient_light_source = 3
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_8w7e2")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-1, 6.87432e-09, -8.71521e-08, 0, 0.996904, 0.0786331, 8.74228e-08, 0.0786331, -0.996904, 0, 7.157, 0)
+shadow_enabled = true
+directional_shadow_blend_splits = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_smc6q")
+
+[node name="Player" parent="." instance=ExtResource("1_tm64p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 3)
+
+[node name="Terrain" parent="." instance=ExtResource("3_tic8y")]

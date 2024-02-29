@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://5yod1j2d341d"]
+
+[sub_resource type="Shader" id="Shader_ff30w"]
+code = "shader_type spatial;
+render_mode cull_disabled;
+
+void vertex() 
+{
+	
+}
+
+void fragment() 
+{
+	ALBEDO = vec3(1.0);
+}
+"
+
+[resource]
+render_priority = 0
+shader = SubResource("Shader_ff30w")

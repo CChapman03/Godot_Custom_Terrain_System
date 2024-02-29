@@ -1,0 +1,35 @@
+[gd_scene load_steps=8 format=3 uid="uid://sbi244et0ldv"]
+
+[ext_resource type="Script" path="res://Scripts/Terrain.gd" id="1_amnup"]
+[ext_resource type="Script" path="res://Scripts/LOD1_Chunks.gd" id="2_ntah7"]
+[ext_resource type="Script" path="res://Scripts/LOD0_Chunks.gd" id="4_p56sg"]
+[ext_resource type="Script" path="res://Scripts/LOD2_Chunks.gd" id="4_voxf2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pagbp"]
+albedo_color = Color(0, 1, 0, 1)
+metallic_specular = 0.2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_va15y"]
+size = Vector2(32, 32)
+subdivide_width = 32
+subdivide_depth = 32
+
+[sub_resource type="MultiMesh" id="MultiMesh_eg5yv"]
+transform_format = 1
+mesh = SubResource("PlaneMesh_va15y")
+
+[node name="Terrain" type="Node3D"]
+script = ExtResource("1_amnup")
+
+[node name="LOD0_Chunks" type="MultiMeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_pagbp")
+multimesh = SubResource("MultiMesh_eg5yv")
+script = ExtResource("4_p56sg")
+
+[node name="LOD1_Chunks" type="MultiMeshInstance3D" parent="."]
+script = ExtResource("2_ntah7")
+
+[node name="LOD2_Chunks" type="MultiMeshInstance3D" parent="."]
+script = ExtResource("4_voxf2")
+
+[node name="Chunk_Collision" type="StaticBody3D" parent="."]

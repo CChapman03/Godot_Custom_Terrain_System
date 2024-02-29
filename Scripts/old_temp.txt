@@ -1,0 +1,455 @@
+var hidden_chunks = []
+var visible_chunks = []
+
+var rows : int
+
+	
+	#var A : Vector3 = $"../Player".global_transform.origin
+	#var B : Vector3 = -$"../Player".transform.rotated(Vector3.UP, deg_to_rad(60.0)).basis.z.normalized() * 100.0
+	#var C : Vector3 = -$"../Player".transform.rotated(Vector3.UP, deg_to_rad(-60.0)).basis.z.normalized() * 100.0
+	
+	#var minx : int = B.x
+	#var maxx : int = C.x
+	#var miny : int = B.y
+	#var maxy : int = A.y
+	#var minx_grid : int = minx / chunk_size
+	#var maxx_grid : int = maxx / chunk_size
+	#var miny_grid : int = miny / chunk_size
+	#var maxy_grid : int = maxy / chunk_size
+	
+	#var distBCx : float = abs(B.x - C.x)
+	#var distABy : float = abs(A.y - B.y)
+	#var distBCx_grid : int = int(distBCx) / chunk_size
+	#var distABy_grid : int = int(distABy) / chunk_size
+	
+	#var instances = []
+	#
+	#for x in range(minx_grid, maxx_grid):
+		#for y in range(miny_grid, maxy_grid):
+			#var trans = Transform3D()
+			#trans.origin = Vector3(x * chunk_size, 0.0, y * chunk_size)
+			#
+			#if isInsideTriangle(A.x, A.z, B.x, B.z, C.x, C.z, x * chunk_size, y * chunk_size):
+				#instances.append(trans)
+	
+	#var A = $"../Player".transform.origin
+	#var B : Vector3 = -$"../Player".transform.rotated(Vector3.UP, deg_to_rad(60.0)).basis.z.normalized() * 100.0
+	#var C : Vector3 = -$"../Player".transform.rotated(Vector3.UP, deg_to_rad(-60.0)).basis.z.normalized() * 100.0
+	#
+	#var chunk_mesh : PlaneMesh = PlaneMesh.new()
+	#chunk_mesh.size = Vector2(chunk_size, chunk_size)
+	#chunk_mesh.subdivide_depth = chunk_resolution
+	#chunk_mesh.subdivide_width = chunk_resolution
+	#
+	#self.multimesh.mesh = chunk_mesh
+	#
+	## Re-use the same shape
+	#var shape = self.multimesh.mesh.create_trimesh_shape()
+	## Create one static body
+	#var collisionNode = StaticBody3D.new()
+	#self.add_child(collisionNode)
+	#
+	##self.multimesh.instance_count = 100
+	#self.multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	##self.multimesh.visible_instance_count = 100
+	#
+	#rows = sqrt(float(100))
+	#
+	#for index in range(self.multimesh.instance_count):
+		#var instance_trans : Transform3D = Transform3D()
+		#
+		##var x = float(int(index) % rows) - float(rows/2)
+		##var z = -float(int(index) / rows) + float(rows/2)
+		#var x = (float(int(index) % rows) - float(rows/2))
+		#var z = (-float(int(index) / rows) + float(rows/2))
+		#instance_trans.origin = Vector3(x * chunk_size, 0.0, z * chunk_size)
+		#
+		#if isInsideTriangle(A.x, A.z, B.x, B.z, C.x, C.z, x, z):
+			#self.multimesh.set_instance_transform(index, instance_trans)
+			#
+				## Create many collision shapes
+			#var collisionShape = CollisionShape3D.new()
+			#collisionShape.shape = shape
+			#collisionShape.transform = instance_trans
+			#collisionNode.add_child(collisionShape)
+			#
+		#else:
+			#var zero_basis = Basis.IDENTITY.scaled(Vector3.ZERO)
+			#var zero_trans = Transform3D(zero_basis, Vector3.ZERO)
+			#self.multimesh.set_instance_transform(index, zero_trans)
+		#
+		#
+		
+		
+	#for index in range(self.multimesh.instance_count):
+			#var instance_trans : Transform3D = Transform3D()
+			#
+			#var x = (float(int(index) % rows) - float(rows/2))
+			#var z = (-float(int(index) / rows) + float(rows/2))
+			#instance_trans.origin = Vector3(x * chunk_size, 0.0, z * chunk_size)
+			#
+			#if isInsideTriangle(A.x, A.z, B.x, B.z, C.x, C.z, x, z):
+				#self.multimesh.set_instance_transform(index, instance_trans)
+				#
+			#else:
+				#var zero_basis = Basis.IDENTITY.scaled(Vector3.ZERO)
+				#var zero_trans = Transform3D(zero_basis, Vector3.ZERO)
+				#self.multimesh.set_instance_transform(index, zero_trans)
+				
+				
+				
+				
+# func inside_polygon(point : Vector3, polygon : PackedVector3Array):
+# 	var num_vertices : int = len(polygon)
+# 	var x : float = point.x 
+# 	var y : float = point.z
+# 	var inside : bool = false
+	
+# 	# Store the first point in the polygon and initialize the second point
+# 	var p1 = polygon[0]
+	
+# 	# Loop through each edge in the polygon
+# 	for i in range(1, num_vertices + 1):
+# 		# Get the next point in the polygon
+# 		var p2 = polygon[i % num_vertices]
+	
+# 		# Check if the point is above the minimum y coordinate of the edge
+# 		if y > min(p1.z, p2.z):
+# 			# Check if the point is below the maximum y coordinate of the edge
+# 			if y <= max(p1.z, p2.z):
+# 				# Check if the point is to the left of the maximum x coordinate of the edge
+# 				if x <= max(p1.x, p2.x):
+# 					# Calculate the x-intersection of the line connecting the point to the edge
+# 					var x_intersection = (y - p1.z) * (p2.x - p1.x) / (p2.z - p1.z) + p1.x
+	
+# 					# Check if the point is on the same line as the edge or to the left of the x-intersection
+# 					if p1.x == p2.x or x <= x_intersection:
+# 						# Flip the inside flag
+# 						inside = not inside
+	
+# 		# Store the current point as the first point for the next iteration
+# 		p1 = p2
+	
+# 	# Return the value of the inside flag
+# 	return inside
+
+	# var startx : float = point.x
+	# var maxx : float = get_max_triangle_point(trapezoid, Vector3.RIGHT).x
+	
+	# var int_count = 0
+	# for x in range(startx, maxx + 1, 1):
+	# 	var line_p0 = Vector2(x, point.z)
+	# 	var line_p1 = Vector2(x + 1, point.z)
+		
+	# 	var line = [line_p0, line_p1]
+		
+	# 	var line_p0_p1 = [p0, p1]
+	# 	var line_p2_p3 = [p2, p3]
+		
+	# 	if line_intersection(line, line_p0_p1):
+	# 		int_count += 1
+	# 	if line_intersection(line, line_p2_p3):
+	# 		int_count += 1
+			
+	# return int_count % 2 == 1
+	
+	
+	
+	
+func get_min_triangle_point(triangle : PackedVector3Array, axis : Vector3) -> Vector3:
+	
+	var minimum = 99999999
+	for p in triangle:
+		if axis == Vector3(1, 0, 0):
+			if p.x < minimum:
+				minimum = p.x
+		elif axis == Vector3(0, 1, 0):
+			if p.y < minimum:
+				minimum = p.y
+		elif axis == Vector3(0, 0, 1):
+			if p.z < minimum:
+				minimum = p.z
+				
+		else:
+			return Vector3.ZERO
+	
+	var pnt = Vector3.ZERO
+	for p in triangle:
+		if axis == Vector3(1, 0, 0):
+			if p.x == minimum:
+				pnt = p
+		elif axis == Vector3(0, 1, 0):
+			if p.y == minimum:
+				pnt = p
+		elif axis == Vector3(0, 0, 1):
+			if p.z == minimum:
+				pnt = p
+				
+	return pnt
+	
+func get_max_triangle_point(triangle : PackedVector3Array, axis : Vector3) -> Vector3:
+	
+	var minimum = -99999999
+	for p in triangle:
+		if axis == Vector3(1, 0, 0):
+			if p.x > minimum:
+				minimum = p.x
+		elif axis == Vector3(0, 1, 0):
+			if p.y > minimum:
+				minimum = p.y
+		elif axis == Vector3(0, 0, 1):
+			if p.z > minimum:
+				minimum = p.z
+				
+		else:
+			return Vector3.ZERO
+	
+	var pnt = Vector3.ZERO
+	for p in triangle:
+		if axis == Vector3(1, 0, 0):
+			if p.x == minimum:
+				pnt = p
+		elif axis == Vector3(0, 1, 0):
+			if p.y == minimum:
+				pnt = p
+		elif axis == Vector3(0, 0, 1):
+			if p.z == minimum:
+				pnt = p
+				
+	return pnt
+
+func point2point_distance(a : Vector3, b: Vector3) -> float:
+	return sqrt(pow(b.x - a.x, 2) + pow(b.z - a.z, 2))
+
+func area_of_triangle(x1 : int, y1 : int, x2 : int, y2 : int, x3 : int, y3 : int) -> float:
+	return abs(float(x1 * (y2-y3) + x2 * (y3-y1) + x3 * (y1-y2)) / 2.0)
+
+func isInsideTriangle(x1 : int, y1 : int, x2 : int, y2 : int, x3 : int, y3 : int, x : int, y : int) -> bool:
+	# Calculate area of triangle ABC
+	var A : float = area_of_triangle(x1, y1, x2, y2, x3, y3)
+
+	# Calculate area of triangle PBC
+	var A1 : float = area_of_triangle(x, y, x2, y2, x3, y3)
+
+	# Calculate area of triangle PAC
+	var A2 : float = area_of_triangle (x1, y1, x, y, x3, y3)
+
+	# Calculate area of triangle PAB
+	var A3 : float = area_of_triangle (x1, y1, x2, y2, x, y)
+
+	# Check if sum of A1, A2 and A3 is same as A 
+	return (A == A1 + A2 + A3)
+
+func area_of_trapezoid(pa: Vector3, pb : Vector3, pc : Vector3, pd : Vector3) -> float:
+	
+	var a : float = point2point_distance(pa, pc)
+	var b : float = point2point_distance(pb, pd)
+	var h : float = abs(pb.z - pa.z)
+	
+	var area : float = ((a + b) / 2) * h
+	
+	return area
+	
+func det(a, b):
+	return a[0] * b[1] - a[1] * b[0]
+	
+func line_intersection(line1, line2) -> bool:
+	var xdiff = Vector2(line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
+	var ydiff = Vector2(line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
+
+	var div = det(xdiff, ydiff)
+	if div == 0:
+		return false
+	else:
+		return true
+	 
+func inside_Trapezoid(trapezoid : PackedVector3Array, point : Vector3) -> bool:
+	var p0 : Vector3 = Vector3(trapezoid[0].x, trapezoid[0].y, trapezoid[0].z)
+	var p1 : Vector3 = Vector3(trapezoid[1].x, trapezoid[1].y, trapezoid[1].z)
+	var p2 : Vector3 = Vector3(trapezoid[2].x, trapezoid[2].y, trapezoid[2].z)
+	var p3 : Vector3 = Vector3(trapezoid[3].x, trapezoid[3].y, trapezoid[3].z)
+	
+	var area : float = area_of_trapezoid(p0, p1, p2, p3)
+	var a : float = area_of_triangle(point.x, point.z, p1.x, p1.z, p3.x, p3.z)
+	var b : float = area_of_triangle(p0.x, p0.z, point.x, point.z, p1.x, p1.z)
+	var c : float = area_of_triangle(p2.x, p2.z, p3.x, p3.z, point.x, point.z)
+	var d : float = area_of_triangle(p0.x, p0.z, p2.x, p2.z, point.x, point.z)
+	
+	return (area == a + b + b + d)
+
+func inside_polygon(point : Vector3, polygon : PackedVector3Array):
+	var num_vertices : int = len(polygon)
+	var x : float = point.x 
+	var z : float = point.z
+	var inside : bool = false
+
+	# Store the first point in the polygon and initialize the second point
+	var p1 = polygon[0]
+
+	# Loop through each edge in the polygon
+	for i in range(1, num_vertices + 1):
+		# Get the next point in the polygon
+		var p2 = polygon[i % num_vertices]
+
+		# Check if the point is above the minimum y coordinate of the edge
+		if z > min(p1.z, p2.z):
+			# Check if the point is below the maximum y coordinate of the edge
+			if z <= max(p1.z, p2.z):
+				# Check if the point is to the left of the maximum x coordinate of the edge
+				if x <= max(p1.x, p2.x):
+					# Calculate the x-intersection of the line connecting the point to the edge
+					var x_intersection = (z - p1.z) * (p2.x - p1.x) / (p2.z - p1.z) + p1.x
+
+					# Check if the point is on the same line as the edge or to the left of the x-intersection
+					if p1.x == p2.x or x <= x_intersection:
+						# Flip the inside flag
+						inside = not inside
+
+		# Store the current point as the first point for the next iteration
+		p1 = p2
+
+	# Return the value of the inside flag
+	return inside
+
+func construct_triangle(fov_angle : float, max_dist : float) -> PackedVector3Array:
+	var T = $"../Player".transform
+	var T_Point = $"../Player".transform.origin * Vector3(1, 0, 1)
+	var T2 = T.translated(T.basis.z.normalized() * chunk_size)
+	var T2_Point = T2.origin * Vector3(1, 0, 1)
+	var A : Vector3 = T2.origin
+	A = T_Point + A
+	var B : Vector3 = -T2.rotated(Vector3.UP, deg_to_rad(fov_angle)).basis.z.normalized() * max_dist
+	B = T_Point + B
+	var C : Vector3 = -T2.rotated(Vector3.UP, deg_to_rad(-fov_angle)).basis.z.normalized() * max_dist
+	C = T_Point + C
+	
+	if debug:
+		
+		for child in self.get_children():
+			if child.name == "debug" and child is Node3D:
+				for c in child.get_children():
+					c.queue_free()
+		
+		var m_mesh : SphereMesh = SphereMesh.new()
+		m_mesh.radius = 2.0
+		m_mesh.height = 4.0
+		m_mesh.radial_segments = 5
+		m_mesh.rings = 5
+		var m_mat = StandardMaterial3D.new()
+		m_mat.albedo_color = Color(1, 0, 0, 1)
+		m_mat.metallic_specular = 0.0
+		m_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m_mesh.material = m_mat
+		
+		var m0 : MeshInstance3D = MeshInstance3D.new()
+		m0.transform = Transform3D(Basis.IDENTITY, A)
+		m0.mesh = m_mesh
+		m0.material_override = m_mat
+		
+		var m1 : MeshInstance3D = MeshInstance3D.new()
+		m1.transform = Transform3D(Basis.IDENTITY, B)
+		m1.mesh = m_mesh
+		m1.material_override = m_mat
+		
+		var m2 : MeshInstance3D = MeshInstance3D.new()
+		m2.transform = Transform3D(Basis.IDENTITY, C)
+		m2.mesh = m_mesh
+		m2.material_override = m_mat
+		
+		m = Node3D.new()
+		m.name = "debug"
+		m.add_child(m0)
+		m.add_child(m1)
+		m.add_child(m2)
+		
+	else:
+		for child in self.get_children():
+			if child.name == "debug" and child is Node3D:
+				child.queue_free()
+	
+	var array = []
+	array.append(A)
+	array.append(B)
+	array.append(C)
+		
+	return PackedVector3Array(array)
+	
+func construct_trapezoid(fov_angle : float, min_dist : float, max_dist : float) -> PackedVector3Array:
+	
+	var T = $"../Player".transform
+	var T_Point = $"../Player".transform.origin * Vector3(1, 0, 1)
+	var T2 = T.translated(T.basis.z.normalized() * chunk_size)
+	
+	var A : Vector3 = (-T2.rotated(Vector3.UP, deg_to_rad(fov_angle)).basis.z.normalized() * min_dist)
+	A = T_Point + A
+	#A = ((Vector3i(A) / chunk_size) + Vector3i(T.origin) / chunk_size) * Vector3i(1, 0, 1)
+	var B : Vector3 = (-T2.rotated(Vector3.UP, deg_to_rad(fov_angle)).basis.z.normalized() * max_dist)
+	B = T_Point + B
+	#B = ((Vector3i(B) / chunk_size) + Vector3i(T.origin) / chunk_size) * Vector3i(1, 0, 1)
+	var C : Vector3 = (-T2.rotated(Vector3.UP, deg_to_rad(-fov_angle)).basis.z.normalized() * max_dist)
+	C = T_Point + C
+	#C = ((Vector3i(C) / chunk_size) + Vector3i(T.origin) / chunk_size) * Vector3i(1, 0, 1)
+	var D : Vector3 = (-T2.rotated(Vector3.UP, deg_to_rad(-fov_angle)).basis.z.normalized() * min_dist)
+	D = T_Point + D
+	#D = ((Vector3i(D) / chunk_size) + Vector3i(T.origin) / chunk_size) * Vector3i(1, 0, 1)
+	
+	if debug:
+		
+		var m_mesh : SphereMesh = SphereMesh.new()
+		m_mesh.radius = 2.0
+		m_mesh.height = 4.0
+		m_mesh.radial_segments = 5
+		m_mesh.rings = 5
+		var m_mat = StandardMaterial3D.new()
+		m_mat.albedo_color = Color(1, 0.3, 0, 1)
+		m_mat.metallic_specular = 0.0
+		m_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m_mesh.material = m_mat
+		
+		var m0 : MeshInstance3D = MeshInstance3D.new()
+		m0.transform = Transform3D(Basis.IDENTITY, A)
+		m0.mesh = m_mesh
+		m0.material_override = m_mat
+		
+		var m1 : MeshInstance3D = MeshInstance3D.new()
+		m1.transform = Transform3D(Basis.IDENTITY, B)
+		m1.mesh = m_mesh
+		m1.material_override = m_mat
+		
+		var m2 : MeshInstance3D = MeshInstance3D.new()
+		m2.transform = Transform3D(Basis.IDENTITY, C)
+		m2.mesh = m_mesh
+		m2.material_override = m_mat
+		
+		var m3 : MeshInstance3D = MeshInstance3D.new()
+		m3.transform = Transform3D(Basis.IDENTITY, D)
+		m3.mesh = m_mesh
+		m3.material_override = m_mat
+		
+		if m:		
+			m.add_child(m0)
+			m.add_child(m1)
+			m.add_child(m2)
+			m.add_child(m3)
+			
+			self.add_child(m)
+		
+	else:
+		for child in self.get_children():
+			if child.name == "debug" and child is Node3D:
+				child.queue_free()
+		
+	
+	var array = []
+	array.append(Vector3(A))
+	array.append(Vector3(B))
+	array.append(Vector3(C))
+	array.append(Vector3(D))
+		
+	return PackedVector3Array(array)
+	
+func world_2_grid(world_pos : Vector3, grid_size : int) -> Vector3:
+	return world_pos / grid_size
+	
+func grid_2_world(grid_pos : Vector3, grid_size : int) -> Vector3:
+	return grid_pos * grid_size
