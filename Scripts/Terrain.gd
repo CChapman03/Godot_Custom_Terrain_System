@@ -1,17 +1,28 @@
 extends Node3D
 
 @export var max_chunks : int = 500
-@export var chunk_size : int = 32
+@export var chunk_size : float = 32
 @export var lod0_chunk_resolution : int = 32
 @export var lod1_chunk_resolution : int = 8
 @export var lod2_chunk_resolution : int = 2
 @export var lod0_max_distance : float = 50.0
 @export var lod1_max_distance : float = 400.0
 @export var lod2_max_distance : float = 800.0
+@export var lod3_max_distance : float = 1600.0
 @export var fov : float = 60.0
 
 @onready var player_transform : Transform3D
 @onready var player_head_transform : Transform3D
+
+@onready var terrain_heightmap : Image = load(ProjectSettings.get_setting("shader_globals/terrain_heightmap").value).get_image()
+@onready var terrain_height : float = ProjectSettings.get_setting("shader_globals/terrain_height").value
+
+@onready var terrain_heightmap_size : float = terrain_heightmap.get_width() 
+
+func get_height(x, z):
+	var h = terrain_heightmap.get_pixel(fposmod(x - terrain_heightmap_size * 0.5, terrain_heightmap_size), fposmod(z - terrain_heightmap_size * 0.5, terrain_heightmap_size)).r * terrain_height	
+	return h
+
 
 func get_min_polygon_point(polygon : PackedVector3Array, axis : Vector3) -> Vector3:
 	
@@ -180,7 +191,7 @@ func construct_triangle(fov_angle : float, max_dist : float) -> PackedVector3Arr
 	B = T_Point + B
 	var C : Vector3 = -T2.rotated(Vector3.UP, deg_to_rad(-fov_angle)).basis.z.normalized() * max_dist
 	C = T_Point + C
-
+	
 	var array = []
 
 	array.append(A)
@@ -222,3 +233,48 @@ func world_2_grid(world_pos : Vector3, grid_size : int) -> Vector3:
 	
 func grid_2_world(grid_pos : Vector3, grid_size : int) -> Vector3:
 	return grid_pos * grid_size
+	
+func calculate_collison():
+	if $Chunk_Collision.get_child_count() > 0:
+		for child in $Chunk_Collision.get_children():
+			if child:
+				$Chunk_Collision.remove_child(child)
+	
+	# Define Position of Player
+	var T_Point : Vector3 = player_transform.origin * Vector3(1, 0, 1)
+	var T_Point_Grid = world_2_grid(T_Point, chunk_size)
+	
+	# Re-Create Chunk Mesh
+	var chunk_mesh : PlaneMesh = PlaneMesh.new()
+	chunk_mesh.size = Vector2(chunk_size, chunk_size)
+	chunk_mesh.subdivide_depth = lod0_chunk_resolution
+	chunk_mesh.subdivide_width = lod0_chunk_resolution
+	
+	# Convert Chunk Mesh into ArrayMesh
+	var surface_tool := SurfaceTool.new()
+	surface_tool.create_from(chunk_mesh, 0)
+	var array_mesh := surface_tool.commit()
+	
+	# Update all vertices Y position of chunk (ArrayMesh) mesh using MeshDataTool
+	var mdt = MeshDataTool.new()
+	mdt.create_from_surface(array_mesh, 0)
+	
+	for i in range(mdt.get_vertex_count()):
+		var vert = mdt.get_vertex(i)
+		
+		vert.y = get_height(T_Point.x + vert.x, T_Point.z + vert.z)
+		#print(vert.y)
+		
+		mdt.set_vertex(i, vert)
+		
+	# Apply updated vertices to ArrayMesh
+	array_mesh.clear_surfaces()
+	mdt.commit_to_surface(array_mesh, 0)
+	
+	var collision_shape = array_mesh.create_trimesh_shape()
+	
+	var instance_collision_shape_node = CollisionShape3D.new()
+	instance_collision_shape_node.shape = collision_shape
+	instance_collision_shape_node.transform = Transform3D(Basis.IDENTITY, T_Point_Grid * chunk_size)
+	
+	$Chunk_Collision.add_child(instance_collision_shape_node)

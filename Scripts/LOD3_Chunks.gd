@@ -1,16 +1,14 @@
 extends MultiMeshInstance3D
 
-@onready var view_instances
-@onready var collision_shape
+@onready var view_instances = []
 
 @onready var Terrain = $".."
 
-func calc_instances(view_triangle : PackedVector3Array):
-	
-	var minx : Vector3 = Terrain.get_min_polygon_point(view_triangle, Vector3.RIGHT)
-	var maxx : Vector3 = Terrain.get_max_polygon_point(view_triangle, Vector3.RIGHT)
-	var minz : Vector3 = Terrain.get_min_polygon_point(view_triangle, Vector3.BACK)
-	var maxz : Vector3 = Terrain.get_max_polygon_point(view_triangle, Vector3.BACK)
+func calc_instances(view_trapezoid : PackedVector3Array, lod0_instances):
+	var minx : Vector3 = Terrain.get_min_polygon_point(view_trapezoid, Vector3.RIGHT)
+	var maxx : Vector3 = Terrain.get_max_polygon_point(view_trapezoid, Vector3.RIGHT)
+	var minz : Vector3 = Terrain.get_min_polygon_point(view_trapezoid, Vector3.BACK)
+	var maxz : Vector3 = Terrain.get_max_polygon_point(view_trapezoid, Vector3.BACK)
 	
 	var minx_grid : Vector3 = Terrain.world_2_grid(minx, Terrain.chunk_size)
 	var maxx_grid : Vector3 = Terrain.world_2_grid(maxx, Terrain.chunk_size)
@@ -32,22 +30,22 @@ func calc_instances(view_triangle : PackedVector3Array):
 								Vector3(world_grid_center_point.x + grid_center_offset, 0.0, world_grid_center_point.z + grid_center_offset),
 								Vector3(world_grid_center_point.x - grid_center_offset, 0.0, world_grid_center_point.z + grid_center_offset)]
 				
-			var point_in_view_triangle : bool = false
+			var point_in_view_trapezoid : bool = false
 			for p in grid_points:
-				if Terrain.inside_triangle(view_triangle[0].x, view_triangle[0].z, view_triangle[1].x, view_triangle[1].z, view_triangle[2].x, view_triangle[2].z, p.x, p.z):
-					point_in_view_triangle = true
+				if Terrain.inside_polygon(view_trapezoid, p): # and not isInsideTriangle(view_triangle[0].x, view_triangle[0].z, view_triangle[1].x, view_triangle[1].z, view_triangle[2].x, view_triangle[2].z, p.x, p.z):
+					point_in_view_trapezoid = true
 					
-			if point_in_view_triangle:
+			if point_in_view_trapezoid and not trans in lod0_instances:
 				instances.append(trans)
 				
 	return instances
-
+	
 func create_chunk_mesh() -> PlaneMesh:
 	# Create Chunk Mesh
 	var chunk_mesh : PlaneMesh = PlaneMesh.new()
 	chunk_mesh.size = Vector2(Terrain.chunk_size, Terrain.chunk_size)
-	chunk_mesh.subdivide_depth = Terrain.lod0_chunk_resolution
-	chunk_mesh.subdivide_width = Terrain.lod0_chunk_resolution
+	chunk_mesh.subdivide_depth = Terrain.lod1_chunk_resolution
+	chunk_mesh.subdivide_width = Terrain.lod1_chunk_resolution
 	
 	return chunk_mesh
 
@@ -56,18 +54,18 @@ func _ready():
 	self.multimesh = MultiMesh.new()
 	
 	# Create Chunk Mesh
-	var chunk_mesh = preload("res://3D_ObJects/Terrain_Chunk_LOD0.obj") # : PlaneMesh = create_chunk_mesh()
+	var chunk_mesh = preload("res://3D_ObJects/Terrain_Chunk_LOD3.obj") # : PlaneMesh = create_chunk_mesh()
 	# Set Mesh to use in multimesh
 	self.multimesh.mesh = chunk_mesh
 	
 	# Set multimesh transfrom type to 3D
 	self.multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	
-	# Constuct view-frustum triangle
-	var lod0_view_triangle : PackedVector3Array = Terrain.construct_triangle(Terrain.fov, Terrain.lod0_max_distance)
+	# Constuct view-frustum trapezoid
+	var lod1_view_trapezoid : PackedVector3Array = Terrain.construct_trapezoid(Terrain.fov, Terrain.lod2_max_distance, Terrain.lod3_max_distance)
 	
-	# Calc instances to draw in multmesh (Based on inside view-frustum triangle)
-	view_instances = calc_instances(lod0_view_triangle)
+	# Calc instances to draw in multmesh (Based on inside view-frustum trapezoid)
+	view_instances = calc_instances(lod1_view_trapezoid, $"../LOD2_Chunks".view_instances)
 	
 	var num_view_instances = clamp(len(view_instances), 1, Terrain.max_chunks)
 	
@@ -75,9 +73,6 @@ func _ready():
 	self.multimesh.instance_count = num_view_instances
 	# Set the visible amount of instances to draw in multimesh
 	self.multimesh.visible_instance_count = num_view_instances
-	
-	# Create One Collision Shape based on multimesh's mesh (chunk_mesh)
-	#collision_shape = self.multimesh.mesh.create_trimesh_shape()
 	
 	# Go through all (visible) instances and set their transform (position, rotation, scale).
 	for instance_index in range(num_view_instances):
@@ -87,46 +82,32 @@ func _ready():
 		# Assign Transform of the current instance
 		self.multimesh.set_instance_transform(instance_index, instance_transform)
 		
-		# Create collision shape for current instance
-		#var instance_collision_shape = CollisionShape3D.new()
-		#instance_collision_shape.shape = collision_shape
-		#instance_collision_shape.transform = instance_transform
-		#$"../Chunk_Collision".add_child(instance_collision_shape)
-	
 	# Create and set material for all instances in multimesh to use.
 	# Create Generic Material
 	#var material = StandardMaterial3D.new()
 	## Set the color of the material to Green.
-	#material.albedo_color = Color(0, 1, 0, 1)
+	#material.albedo_color = Color(1.0, 0.0, 0.0, 1)
 	## Set Specular for the material to less shiny.
 	#material.metallic_specular = 0.2
 	
 	var material = preload("res://Materials/Terrain.tres")
-	material.set_shader_parameter("lod_level", 0)
+	material.set_shader_parameter("lod_level", 3)
 	
 	#var material = ShaderMaterial.new()
 	## Set the color of the material to Green.
 	#material.shader = preload("res://Materials/wireframe.gdshader")
-	# Set Specular for the material to less shiny.
 	
 	# Apply the material to all multimesh instances
 	material_override = material
 
 func _process(delta):
-
 	# Run code every 1/4 frames.
 	if Engine.get_process_frames() % 4 == 0:
+		# Constuct view-frustum trapezoid
+		var lod1_view_trapezoid : PackedVector3Array = Terrain.construct_trapezoid(Terrain.fov, Terrain.lod2_max_distance, Terrain.lod3_max_distance)
 		
-		#if $"../Chunk_Collision".get_child_count() > 0:
-			#for child in $"../Chunk_Collision".get_children():
-				#if child:
-					#$"../Chunk_Collision".remove_child(child)
-		
-		# Constuct view-frustum triangle
-		var lod0_view_triangle : PackedVector3Array = Terrain.construct_triangle(Terrain.fov, Terrain.lod0_max_distance)
-		
-		# Calc instances to draw in multmesh (Based on inside view-frustum triangle)
-		view_instances = calc_instances(lod0_view_triangle)
+		# Calc instances to draw in multmesh (Based on inside view-frustum trapezoid)
+		view_instances = calc_instances(lod1_view_trapezoid, $"../LOD2_Chunks".view_instances)
 		
 		var num_view_instances = clamp(len(view_instances), 1, Terrain.max_chunks)
 		
@@ -135,19 +116,10 @@ func _process(delta):
 		# Update the visible amount of instances to draw in multimesh
 		self.multimesh.visible_instance_count = num_view_instances
 		
-		# Go through all (visible) instances and update their transform (position, rotation, scale).
+		# Go through all (visible) instances and Update their transform (position, rotation, scale).
 		for instance_index in range(num_view_instances):
 			# Define Transform for the current instance
 			var instance_transform : Transform3D = view_instances[instance_index]
 			
-			# Update Transform of the current instance
+			# Assign Transform of the current instance
 			self.multimesh.set_instance_transform(instance_index, instance_transform)
-			
-			# Update collision shape for current instance
-			#var instance_collision_shape = CollisionShape3D.new()
-			#instance_collision_shape.shape = collision_shape
-			#instance_collision_shape.transform = instance_transform
-			
-			#$"../Chunk_Collision".add_child(instance_collision_shape)
-			
-		Terrain.calculate_collison()

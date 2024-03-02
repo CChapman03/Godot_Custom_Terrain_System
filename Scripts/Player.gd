@@ -12,7 +12,7 @@ const FLY_SPEED = 40
 const FLY_ACCEL = 4
 
 # walk vars
-var gravity = -9.8 * 3
+var gravity = -9.8
 const MAX_SPEED = 8
 const MAX_RUNNING_SPEED = 12
 const ACCEL = 2

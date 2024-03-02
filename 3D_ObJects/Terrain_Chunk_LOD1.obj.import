@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://beqip31idgvov"
+path="res://.godot/imported/Terrain_Chunk_LOD1.obj-ad934ddedaa660b312d0c4f19c1b916e.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Terrain_Chunk_LOD1.obj-ad934ddedaa660b312d0c4f19c1b916e.mesh"]
+
+source_file="res://3D_ObJects/Terrain_Chunk_LOD1.obj"
+dest_files=["res://.godot/imported/Terrain_Chunk_LOD1.obj-ad934ddedaa660b312d0c4f19c1b916e.mesh", "res://.godot/imported/Terrain_Chunk_LOD1.obj-ad934ddedaa660b312d0c4f19c1b916e.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

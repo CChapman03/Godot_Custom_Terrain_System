@@ -54,7 +54,7 @@ func _ready():
 	self.multimesh = MultiMesh.new()
 	
 	# Create Chunk Mesh
-	var chunk_mesh : PlaneMesh = self.create_chunk_mesh()
+	var chunk_mesh = preload("res://3D_ObJects/Terrain_Chunk_LOD1.obj") # : PlaneMesh = create_chunk_mesh()
 	# Set Mesh to use in multimesh
 	self.multimesh.mesh = chunk_mesh
 	
@@ -84,11 +84,14 @@ func _ready():
 		
 	# Create and set material for all instances in multimesh to use.
 	# Create Generic Material
-	var material = StandardMaterial3D.new()
-	# Set the color of the material to Green.
-	material.albedo_color = Color(1.0, 1.0, 0.0, 1)
-	# Set Specular for the material to less shiny.
-	material.metallic_specular = 0.2
+	#var material = StandardMaterial3D.new()
+	## Set the color of the material to Green.
+	#material.albedo_color = Color(1.0, 1.0, 0.0, 1)
+	## Set Specular for the material to less shiny.
+	#material.metallic_specular = 0.2
+	
+	var material = preload("res://Materials/Terrain.tres")
+	material.set_shader_parameter("lod_level", 1)
 	
 	#var material = ShaderMaterial.new()
 	## Set the color of the material to Green.

@@ -1,13 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://sbi244et0ldv"]
+[gd_scene load_steps=9 format=3 uid="uid://sbi244et0ldv"]
 
 [ext_resource type="Script" path="res://Scripts/Terrain.gd" id="1_amnup"]
+[ext_resource type="Material" uid="uid://c4dd8rby443c2" path="res://Materials/Terrain.tres" id="2_mvnll"]
 [ext_resource type="Script" path="res://Scripts/LOD1_Chunks.gd" id="2_ntah7"]
 [ext_resource type="Script" path="res://Scripts/LOD0_Chunks.gd" id="4_p56sg"]
 [ext_resource type="Script" path="res://Scripts/LOD2_Chunks.gd" id="4_voxf2"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pagbp"]
-albedo_color = Color(0, 1, 0, 1)
-metallic_specular = 0.2
+[ext_resource type="Script" path="res://Scripts/LOD3_Chunks.gd" id="6_ufjoy"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_va15y"]
 size = Vector2(32, 32)
@@ -20,9 +18,13 @@ mesh = SubResource("PlaneMesh_va15y")
 
 [node name="Terrain" type="Node3D"]
 script = ExtResource("1_amnup")
+max_chunks = 1000
+lod0_chunk_resolution = 31
+lod1_chunk_resolution = 15
+lod2_chunk_resolution = 7
 
 [node name="LOD0_Chunks" type="MultiMeshInstance3D" parent="."]
-material_override = SubResource("StandardMaterial3D_pagbp")
+material_override = ExtResource("2_mvnll")
 multimesh = SubResource("MultiMesh_eg5yv")
 script = ExtResource("4_p56sg")
 
@@ -31,5 +33,8 @@ script = ExtResource("2_ntah7")
 
 [node name="LOD2_Chunks" type="MultiMeshInstance3D" parent="."]
 script = ExtResource("4_voxf2")
+
+[node name="LOD3_Chunks" type="MultiMeshInstance3D" parent="."]
+script = ExtResource("6_ufjoy")
 
 [node name="Chunk_Collision" type="StaticBody3D" parent="."]
