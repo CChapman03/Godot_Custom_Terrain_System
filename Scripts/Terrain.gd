@@ -1,3 +1,4 @@
+@tool
 extends Node3D
 
 @export var max_chunks : int = 500

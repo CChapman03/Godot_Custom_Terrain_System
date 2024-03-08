@@ -1,7 +1,18 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://c4dd8rby443c2"]
+[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://c4dd8rby443c2"]
 
 [ext_resource type="Shader" path="res://Materials/Terrain.gdshader" id="1_q355a"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_fg674"]
+frequency = 0.0015
+metadata/_preview_in_3d_space_ = true
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_w5263"]
+in_3d_space = true
+seamless = true
+noise = SubResource("FastNoiseLite_fg674")
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_q355a")
+shader_parameter/lod_level = 0
+shader_parameter/variation_map = SubResource("NoiseTexture2D_w5263")

@@ -3,8 +3,10 @@ render_mode cull_disabled;
 
 global uniform sampler2D terrain_heightmap;
 global uniform float terrain_height;
+global uniform sampler2D terrain_gradient;
 
 uniform int lod_level = 0;
+uniform sampler2D variation_map;
 
 varying vec3 world_vertex;
 varying vec2 texture_position;
@@ -49,6 +51,17 @@ float get_height_at(mat4 model_matrix, float x, float z)
 	float h = texture(terrain_heightmap, uv_texture_pos).r * terrain_height;
 	
 	return h;
+}
+
+vec3 get_color_at(mat4 model_matrix, float x, float z)
+{
+	float gradient_tex_size = float(textureSize(terrain_gradient, 0).x);
+	float h = get_height_at(model_matrix, x, z);
+	float h_normaized = h / terrain_height;
+	vec2 gradient_uv = vec2(h_normaized, 0.0);
+	
+	vec3 color = texture(terrain_gradient, gradient_uv).rgb;
+	return color;
 }
 
 float get_fixed_height_at(mat4 model_matrix, vec2 uv, float x, float z)
@@ -160,11 +173,11 @@ void fragment()
 	}
 	if (height > 0.03 * terrain_height && height < 0.25 * terrain_height)
 	{
-		color += sand_col;
+		color += mix(water_col, sand_col, texture(variation_map, get_texture_position()).r);
 	}
 	if (height > 0.2 * terrain_height && height < 0.4 * terrain_height)
 	{
-		color += grass_col;
+		color += mix(sand_col, grass_col, texture(variation_map, get_texture_position()).r);
 	}
 	if (height > 0.4 * terrain_height && height < 0.925 * terrain_height)
 	{
@@ -174,25 +187,25 @@ void fragment()
 		}
 		if ((slope) < 0.4)
 		{
-			color += dirt_col;
+			color += mix(grass_col, dirt_col, texture(variation_map, get_texture_position()).r);
 		}
 		if ((slope) > 0.4)
 		{
-			color += cliff_col;
+			color += mix(dirt_col, cliff_col, texture(variation_map, get_texture_position()).r);
 		}
 	}
 	if (height > 0.9 * terrain_height)
 	{
 		if (slope > 0.75)
 		{
-			color += snow_col;
+			color += mix(cliff_col, snow_col, texture(variation_map, get_texture_position()).r);
 		}
-		color += snow_col;
+		color += mix(cliff_col, snow_col, texture(variation_map, get_texture_position()).r);
 	}
 	
 	//color = ((slope) + normalize(height) / 2.0) * normalize(color);
 	
-	ALBEDO = color;
-	ROUGHNESS = 0.8;
-	SPECULAR = 0.2;
+	ALBEDO = get_color_at(MODEL_MATRIX, world_vertex.x, world_vertex.z);
+	ROUGHNESS = 0.9;
+	SPECULAR = 0.1;
 }

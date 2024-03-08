@@ -66,3 +66,7 @@ terrain_height={
 "type": "float",
 "value": 32.0
 }
+terrain_gradient={
+"type": "sampler2D",
+"value": "res://Textures/Terrain_Gradient.png"
+}

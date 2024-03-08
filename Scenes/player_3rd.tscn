@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3 uid="uid://bgalshhw730ax"]
+
+[ext_resource type="ArrayMesh" uid="uid://dgv33kgqy1jft" path="res://3D_ObJects/Character.obj" id="1_3ra8l"]
+[ext_resource type="Script" path="res://Scripts/player_3rd.gd" id="1_11c4o"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ad61n"]
+height = 1.82
+radius = 0.38
+
+[node name="Player_3RD" type="CharacterBody3D"]
+script = ExtResource("1_11c4o")
+
+[node name="Collisions" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.904035, -0.0784042)
+shape = SubResource("CylinderShape3D_ad61n")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Character_Mesh" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+mesh = ExtResource("1_3ra8l")
+
+[node name="Camera_Mount" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.27184, -0.031616)
+
+[node name="Camera" type="Camera3D" parent="Camera_Mount"]
+transform = Transform3D(0.99976, -3.49274e-10, -0.0219196, 0.00172017, 0.996916, 0.0784577, 0.021852, -0.0784765, 0.996677, -0.0217077, 0.594356, 2.18729)

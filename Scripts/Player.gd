@@ -29,6 +29,7 @@ func _ready():
 
 func _physics_process(delta):
 	walk(delta)
+	#pass
 
 func _input(event):
 	if event is InputEventMouseMotion:

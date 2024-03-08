@@ -1,8 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://dcvigmsamqpym"]
+[gd_scene load_steps=7 format=3 uid="uid://dcvigmsamqpym"]
 
 [ext_resource type="Script" path="res://Scripts/Main.gd" id="1_8w7e2"]
-[ext_resource type="PackedScene" uid="uid://ch8jy0v4y6r1n" path="res://Scenes/Player.tscn" id="1_tm64p"]
 [ext_resource type="PackedScene" uid="uid://sbi244et0ldv" path="res://Scenes/terrain.tscn" id="3_tic8y"]
+[ext_resource type="PackedScene" uid="uid://bgalshhw730ax" path="res://Scenes/player_3rd.tscn" id="4_1lw5j"]
 
 [sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_j3guv"]
 rayleigh_coefficient = 4.37
@@ -21,66 +21,25 @@ background_mode = 2
 sky = SubResource("Sky_laqtd")
 ambient_light_source = 3
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_n52hy"]
-size = Vector2(32, 32)
-subdivide_width = 7
-subdivide_depth = 7
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_8fiqf"]
-size = Vector2(32, 32)
-subdivide_width = 15
-subdivide_depth = 15
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_kg5de"]
-size = Vector2(32, 32)
-subdivide_width = 31
-subdivide_depth = 31
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_8cjyw"]
-size = Vector2(0.4, 1.25)
-subdivide_width = 1
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_yufpu"]
-size = Vector2(32, 32)
-subdivide_width = 80
-subdivide_depth = 80
-
 [node name="Main" type="Node3D"]
 script = ExtResource("1_8w7e2")
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-1, 6.87432e-09, -8.71521e-08, 0, 0.996904, 0.0786331, 8.74228e-08, 0.0786331, -0.996904, 0, 7.157, 0)
 shadow_enabled = true
+shadow_bias = 0.0
+shadow_normal_bias = 4.0
+shadow_blur = 2.0
+directional_shadow_mode = 0
 directional_shadow_blend_splits = true
+directional_shadow_max_distance = 2000.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_smc6q")
 
-[node name="Player" parent="." instance=ExtResource("1_tm64p")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 50, 0)
+[node name="Player_3RD" parent="." instance=ExtResource("4_1lw5j")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9.2, 0)
 
 [node name="Terrain" parent="." instance=ExtResource("3_tic8y")]
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -96)
-visible = false
-mesh = SubResource("PlaneMesh_n52hy")
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -64)
-visible = false
-mesh = SubResource("PlaneMesh_8fiqf")
-
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -32)
-visible = false
-mesh = SubResource("PlaneMesh_kg5de")
-
-[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.18075)
-visible = false
-mesh = SubResource("PlaneMesh_8cjyw")
-
-[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
-visible = false
-mesh = SubResource("PlaneMesh_yufpu")
+lod3_max_distance = 1800.0
+fov = 65.0

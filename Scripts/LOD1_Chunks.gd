@@ -1,3 +1,4 @@
+@tool
 extends MultiMeshInstance3D
 
 @onready var view_instances = []

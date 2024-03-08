@@ -11,7 +11,7 @@ metallic_specular = 0.27
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_wifcu"]
 
 [node name="Player" type="CharacterBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -9586.87, 3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 3)
 velocity = Vector3(0, -750.671, 0)
 script = ExtResource("1")
 

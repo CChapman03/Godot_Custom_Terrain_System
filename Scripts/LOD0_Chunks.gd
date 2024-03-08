@@ -1,3 +1,4 @@
+@tool
 extends MultiMeshInstance3D
 
 @onready var view_instances
@@ -136,18 +137,19 @@ func _process(delta):
 		self.multimesh.visible_instance_count = num_view_instances
 		
 		# Go through all (visible) instances and update their transform (position, rotation, scale).
-		for instance_index in range(num_view_instances):
-			# Define Transform for the current instance
-			var instance_transform : Transform3D = view_instances[instance_index]
-			
-			# Update Transform of the current instance
-			self.multimesh.set_instance_transform(instance_index, instance_transform)
-			
-			# Update collision shape for current instance
-			#var instance_collision_shape = CollisionShape3D.new()
-			#instance_collision_shape.shape = collision_shape
-			#instance_collision_shape.transform = instance_transform
-			
-			#$"../Chunk_Collision".add_child(instance_collision_shape)
+		if num_view_instances > 0 and len(view_instances) > 0:
+			for instance_index in range(num_view_instances):
+				# Define Transform for the current instance
+				var instance_transform : Transform3D = view_instances[instance_index]
+				
+				# Update Transform of the current instance
+				self.multimesh.set_instance_transform(instance_index, instance_transform)
+				
+				# Update collision shape for current instance
+				#var instance_collision_shape = CollisionShape3D.new()
+				#instance_collision_shape.shape = collision_shape
+				#instance_collision_shape.transform = instance_transform
+				
+				#$"../Chunk_Collision".add_child(instance_collision_shape)
 			
 		Terrain.calculate_collison()
